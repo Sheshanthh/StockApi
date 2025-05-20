@@ -1,20 +1,16 @@
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// Register typed HttpClient for FinnhubService
+builder.Services.AddHttpClient<FinnhubService>(client =>
+{
+    client.BaseAddress = new Uri("https://finnhub.io/");
+});
+
 builder.Services.AddControllers();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
-
 app.UseHttpsRedirection();
-
-app.UseAuthorization();
 
 app.MapControllers();
 
