@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\nivas\\OneDrive\\Desktop\\.net Full stack project\\LiveStockApi\\LiveStockApi.csproj": {}
+    "C:\\Users\\nivas\\OneDrive\\Documents\\GitHub\\StockApi\\LiveStockApi\\LiveStockApi.csproj": {}
   },
   "projects": {
-    "C:\\Users\\nivas\\OneDrive\\Desktop\\.net Full stack project\\LiveStockApi\\LiveStockApi.csproj": {
+    "C:\\Users\\nivas\\OneDrive\\Documents\\GitHub\\StockApi\\LiveStockApi\\LiveStockApi.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\nivas\\OneDrive\\Desktop\\.net Full stack project\\LiveStockApi\\LiveStockApi.csproj",
+        "projectUniqueName": "C:\\Users\\nivas\\OneDrive\\Documents\\GitHub\\StockApi\\LiveStockApi\\LiveStockApi.csproj",
         "projectName": "LiveStockApi",
-        "projectPath": "C:\\Users\\nivas\\OneDrive\\Desktop\\.net Full stack project\\LiveStockApi\\LiveStockApi.csproj",
+        "projectPath": "C:\\Users\\nivas\\OneDrive\\Documents\\GitHub\\StockApi\\LiveStockApi\\LiveStockApi.csproj",
         "packagesPath": "C:\\Users\\nivas\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\nivas\\OneDrive\\Desktop\\.net Full stack project\\LiveStockApi\\obj\\",
+        "outputPath": "C:\\Users\\nivas\\OneDrive\\Documents\\GitHub\\StockApi\\LiveStockApi\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\nivas\\AppData\\Roaming\\NuGet\\NuGet.Config"
