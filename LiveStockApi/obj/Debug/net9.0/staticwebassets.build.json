@@ -1,0 +1,12 @@
+{
+  "Version": 1,
+  "Hash": "i91/tqtPG1awbdTyNGUBaoZyjbk6aG5/k5yGbU1emTA=",
+  "Source": "LiveStockApi",
+  "BasePath": "_content/LiveStockApi",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": [],
+  "Endpoints": []
+}
