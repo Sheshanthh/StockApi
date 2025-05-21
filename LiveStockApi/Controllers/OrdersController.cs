@@ -10,14 +10,16 @@ namespace LiveStockApi.Controllers
     public class OrdersController : ControllerBase
     {
         private readonly OrderBookManager _orderBookManager;
+        private readonly OrderChannel _orderChannel;
 
-        public OrdersController(OrderBookManager orderBookManager)
+        public OrdersController(OrderBookManager orderBookManager, OrderChannel orderChannel)
         {
             _orderBookManager = orderBookManager;
+            _orderChannel = orderChannel;
         }
 
         [HttpPost]
-        public IActionResult PlaceOrder([FromBody] OrderRequest request)
+        public async Task<IActionResult> PlaceOrder([FromBody] OrderRequest request)
         {
             if (request == null)
                 return BadRequest("Invalid order request");
@@ -39,8 +41,7 @@ namespace LiveStockApi.Controllers
                 Side = request.Side
             };
 
-            var orderBook = _orderBookManager.GetOrCreateOrderBook(order.Symbol);
-            orderBook.AddOrder(order);
+            await _orderChannel.WriteAsync(order);
 
             return Accepted(new { OrderId = order.OrderId });
         }

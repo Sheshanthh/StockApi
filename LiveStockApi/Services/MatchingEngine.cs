@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using LiveStockApi.Models;
 
 namespace LiveStockApi.Services
 {
@@ -7,27 +8,50 @@ namespace LiveStockApi.Services
     {
         private readonly ILogger<MatchingEngine> _logger;
         private readonly OrderBookManager _orderBookManager;
+        private readonly OrderChannel _orderChannel;
 
-        public MatchingEngine(ILogger<MatchingEngine> logger, OrderBookManager orderBookManager)
+        public MatchingEngine(
+            ILogger<MatchingEngine> logger,
+            OrderBookManager orderBookManager,
+            OrderChannel orderChannel)
         {
             _logger = logger;
             _orderBookManager = orderBookManager;
+            _orderChannel = orderChannel;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             _logger.LogInformation("Matching Engine started");
             
-            while (!stoppingToken.IsCancellationRequested)
+            try
             {
-                foreach (var symbolOrderBook in _orderBookManager.GetOrderBooks())
+                await foreach (var order in _orderChannel.ReadAllAsync(stoppingToken))
                 {
-                    while (symbolOrderBook.Value.TryMatch(out var trade))
+                    try
                     {
-                        _logger.LogInformation($"Matched trade: {trade?.Quantity}@{trade?.Price}");
+                        var orderBook = _orderBookManager.GetOrCreateOrderBook(order.Symbol);
+                        orderBook.AddOrder(order);
+
+                        // Try to match orders immediately after adding a new order
+                        while (orderBook.TryMatch(out var trade))
+                        {
+                            _logger.LogInformation(
+                                "Matched trade: {Quantity}@{Price} for {Symbol}",
+                                trade.Quantity,
+                                trade.Price,
+                                trade.Symbol);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "Error processing order {OrderId}", order.OrderId);
                     }
                 }
-                await Task.Delay(100, stoppingToken);
+            }
+            catch (OperationCanceledException)
+            {
+                _logger.LogInformation("Matching Engine stopped");
             }
         }
     }

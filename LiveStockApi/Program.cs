@@ -31,6 +31,7 @@ builder.Services.AddSingleton<StockListService>();
 builder.Services.AddSingleton<PriceCacheService>();
 builder.Services.AddHostedService(provider => provider.GetRequiredService<PriceCacheService>());
 builder.Services.AddSingleton<OrderBookManager>();
+builder.Services.AddSingleton<OrderChannel>();
 builder.Services.AddHostedService<MatchingEngine>();  // Add matching engine as background service
 
 var app = builder.Build();
