@@ -74,8 +74,12 @@ namespace LiveStockApi.Controllers
         public IActionResult GetOrders(string symbol, [FromQuery] decimal? price = null)
         {
             var orderBook = _orderBookManager.GetOrderBook(symbol.ToUpper());
+            
+            // Return empty lists if no order book exists
             if (orderBook == null)
-                return NotFound($"No order book found for symbol {symbol}");
+            {
+                return Ok(new { BuyOrders = Enumerable.Empty<Order>(), SellOrders = Enumerable.Empty<Order>() });
+            }
 
             if (price.HasValue)
             {

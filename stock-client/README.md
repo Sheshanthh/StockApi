@@ -1,46 +1,84 @@
-# Getting Started with Create React App
+# Stock Trading Interface
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A modern, feature-rich stock trading interface built with React, Material-UI, and real-time updates.
 
-## Available Scripts
+## Features
 
-In the project directory, you can run:
+- Real-time order book display
+- Interactive price chart
+- Modern UI with parallax effects
+- Glass-morphism design
+- Responsive layout
+- Dark theme optimized for trading
 
-### `npm start`
+## Prerequisites
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+- Node.js (v14 or higher)
+- npm (v6 or higher)
+- Backend API running on http://localhost:5000
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+## Installation
 
-### `npm test`
+1. Clone the repository
+2. Navigate to the project directory:
+   ```bash
+   cd stock-client
+   ```
+3. Install dependencies:
+   ```bash
+   npm install
+   ```
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## Running the Application
 
-### `npm run build`
+1. Start the development server:
+   ```bash
+   npm start
+   ```
+2. Open your browser and navigate to `http://localhost:3000`
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## API Endpoints
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+The application uses the following API endpoints:
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+- `POST /api/orders` - Place a new order
+- `GET /api/orders/{symbol}/book` - Get order book for a symbol
+- `GET /api/orders/{symbol}/orders` - Get all orders for a symbol
 
-### `npm run eject`
+## Features
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+### Order Placement
+- Enter symbol, price, and quantity
+- Choose between Buy and Sell orders
+- Real-time validation
+- Success/error notifications
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+### Order Book
+- Real-time updates
+- Separate buy and sell orders
+- Price and quantity display
+- Total value calculation
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+### Price Chart
+- Interactive price history
+- Real-time updates
+- Zoom and pan capabilities
+- Customizable timeframes
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+## Development
 
-## Learn More
+The application is built with:
+- React
+- TypeScript
+- Material-UI
+- Framer Motion
+- Chart.js
+- Axios
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+## Contributing
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+1. Fork the repository
+2. Create your feature branch
+3. Commit your changes
+4. Push to the branch
+5. Create a new Pull Request
