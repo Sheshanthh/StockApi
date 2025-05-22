@@ -65,3 +65,5 @@ C:\Users\nivas\OneDrive\Documents\GitHub\StockApi\LiveStockApi\obj\Debug\net9.0\
 C:\Users\nivas\OneDrive\Documents\GitHub\StockApi\LiveStockApi\obj\Debug\net9.0\LiveStockApi.pdb
 C:\Users\nivas\OneDrive\Documents\GitHub\StockApi\LiveStockApi\obj\Debug\net9.0\LiveStockApi.genruntimeconfig.cache
 C:\Users\nivas\OneDrive\Documents\GitHub\StockApi\LiveStockApi\obj\Debug\net9.0\ref\LiveStockApi.dll
+C:\Users\nivas\OneDrive\Documents\GitHub\StockApi\livestockapi\bin\Debug\net9.0\Pipelines.Sockets.Unofficial.dll
+C:\Users\nivas\OneDrive\Documents\GitHub\StockApi\livestockapi\bin\Debug\net9.0\StackExchange.Redis.dll

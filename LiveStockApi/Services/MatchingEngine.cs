@@ -10,17 +10,20 @@ namespace LiveStockApi.Services
         private readonly OrderBookManager _orderBookManager;
         private readonly OrderChannel _orderChannel;
         private readonly StockHubService _stockHubService;
+        private readonly TradeHistoryService _tradeHistoryService;
 
         public MatchingEngine(
             ILogger<MatchingEngine> logger,
             OrderBookManager orderBookManager,
             OrderChannel orderChannel,
-            StockHubService stockHubService)
+            StockHubService stockHubService,
+            TradeHistoryService tradeHistoryService)
         {
             _logger = logger;
             _orderBookManager = orderBookManager;
             _orderChannel = orderChannel;
             _stockHubService = stockHubService;
+            _tradeHistoryService = tradeHistoryService;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -53,6 +56,9 @@ namespace LiveStockApi.Services
                                 trade.Quantity,
                                 trade.Price,
                                 trade.Symbol);
+
+                            // Store trade in history
+                            _tradeHistoryService.AddTrade(trade);
 
                             // Broadcast trade update
                             _logger.LogInformation("Broadcasting trade update: {@Trade}", trade);

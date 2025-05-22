@@ -39,6 +39,7 @@ builder.Services.AddSingleton<OrderBookManager>();
 builder.Services.AddSingleton<OrderChannel>();
 builder.Services.AddSingleton<StockHubService>();
 builder.Services.AddHostedService<MatchingEngine>();
+builder.Services.AddSingleton<TradeHistoryService>();
 
 var app = builder.Build();
 
