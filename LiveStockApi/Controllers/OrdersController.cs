@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using LiveStockApi.Models;
 using LiveStockApi.Services;
 using System.ComponentModel.DataAnnotations;
+using Microsoft.Extensions.Logging;
 
 namespace LiveStockApi.Controllers
 {
@@ -11,16 +12,23 @@ namespace LiveStockApi.Controllers
     {
         private readonly OrderBookManager _orderBookManager;
         private readonly OrderChannel _orderChannel;
+        private readonly ILogger<OrdersController> _logger;
 
-        public OrdersController(OrderBookManager orderBookManager, OrderChannel orderChannel)
+        public OrdersController(
+            OrderBookManager orderBookManager, 
+            OrderChannel orderChannel,
+            ILogger<OrdersController> logger)
         {
             _orderBookManager = orderBookManager;
             _orderChannel = orderChannel;
+            _logger = logger;
         }
 
         [HttpPost]
         public async Task<IActionResult> PlaceOrder([FromBody] OrderRequest request)
         {
+            _logger.LogInformation("Received order request: {@Request}", request);
+
             if (request == null)
                 return BadRequest("Invalid order request");
 
@@ -41,6 +49,8 @@ namespace LiveStockApi.Controllers
                 Side = request.Side
             };
 
+            _logger.LogInformation("Created order: {@Order}", order);
+
             await _orderChannel.WriteAsync(order);
 
             return Accepted(new { OrderId = order.OrderId });
@@ -49,9 +59,9 @@ namespace LiveStockApi.Controllers
         [HttpGet("{symbol}/book")]
         public IActionResult GetOrderBook(string symbol)
         {
-            var orderBook = _orderBookManager.GetOrderBook(symbol.ToUpper());
-            if (orderBook == null)
-                return NotFound($"No order book found for symbol {symbol}");
+            _logger.LogInformation("Getting order book for symbol: {Symbol}", symbol);
+
+            var orderBook = _orderBookManager.GetOrCreateOrderBook(symbol.ToUpper());
 
             var bestBid = orderBook.GetBestBid();
             var bestAsk = orderBook.GetBestAsk();
@@ -62,23 +72,32 @@ namespace LiveStockApi.Controllers
                 spread = bestAsk.Value - bestBid.Value;
             }
 
-            return Ok(new
+            var response = new
             {
                 Symbol = symbol.ToUpper(),
                 BestBid = bestBid,
                 BestAsk = bestAsk,
-                Spread = spread
-            });
+                Spread = spread,
+                BuyOrders = orderBook.GetBuyOrders(bestBid ?? 0),
+                SellOrders = orderBook.GetSellOrders(bestAsk ?? 0)
+            };
+
+            _logger.LogInformation("Returning order book data: {@Response}", response);
+
+            return Ok(response);
         }
 
         [HttpGet("{symbol}/orders")]
         public IActionResult GetOrders(string symbol, [FromQuery] decimal? price = null)
         {
+            _logger.LogInformation("Getting orders for symbol: {Symbol}, price: {Price}", symbol, price);
+
             var orderBook = _orderBookManager.GetOrderBook(symbol.ToUpper());
             
             // Return empty lists if no order book exists
             if (orderBook == null)
             {
+                _logger.LogWarning("No order book found for symbol {Symbol}", symbol);
                 return Ok(new { BuyOrders = Enumerable.Empty<Order>(), SellOrders = Enumerable.Empty<Order>() });
             }
 

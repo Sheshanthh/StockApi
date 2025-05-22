@@ -1,4 +1,5 @@
 using LiveStockApi.Services;
+using LiveStockApi.Hubs;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -10,7 +11,8 @@ builder.Services.AddCors(options =>
     {
         policy.WithOrigins("http://localhost:3000")
               .AllowAnyHeader()
-              .AllowAnyMethod();
+              .AllowAnyMethod()
+              .AllowCredentials();  // Required for SignalR
     });
 });
 
@@ -26,21 +28,37 @@ builder.Services.AddControllers()
         options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
     });
 
+// Add SignalR
+builder.Services.AddSignalR();
+
 // Register services
 builder.Services.AddSingleton<StockListService>();
 builder.Services.AddSingleton<PriceCacheService>();
 builder.Services.AddHostedService(provider => provider.GetRequiredService<PriceCacheService>());
 builder.Services.AddSingleton<OrderBookManager>();
 builder.Services.AddSingleton<OrderChannel>();
-builder.Services.AddHostedService<MatchingEngine>();  // Add matching engine as background service
+builder.Services.AddSingleton<StockHubService>();
+builder.Services.AddHostedService<MatchingEngine>();
 
 var app = builder.Build();
 
 // Enable CORS
 app.UseCors();
 
-app.UseHttpsRedirection();
+// Configure the HTTP request pipeline
+if (app.Environment.IsDevelopment())
+{
+    app.UseDeveloperExceptionPage();
+}
+
+// Remove HTTPS redirection for development
+// app.UseHttpsRedirection();
 
 app.MapControllers();
+app.MapHub<StockHub>("/hubs/stock");  // Map SignalR hub
+
+// Configure the URLs
+app.Urls.Clear();
+app.Urls.Add("http://localhost:5000");
 
 app.Run();

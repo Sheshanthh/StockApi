@@ -1,97 +1,97 @@
-import React, { useState, useEffect } from 'react';
-import {
-  Box,
-  Typography,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-} from '@mui/material';
-import { styled } from '@mui/material/styles';
+import React, { useEffect, useState } from 'react';
+import { Box, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from '@mui/material';
+import { signalRService } from '../services/signalRService';
 
-const StyledTableCell = styled(TableCell)(({ theme }) => ({
-  padding: theme.spacing(1),
-  borderBottom: `1px solid ${theme.palette.divider}`,
-}));
-
-interface Order {
-  orderId: string;
-  symbol: string;
+interface OrderLevel {
   price: number;
   quantity: number;
-  side: 'Buy' | 'Sell';
 }
 
-interface OrderBookProps {
+interface OrderBookData {
   symbol: string;
+  bestBid: number | null;
+  bestAsk: number | null;
+  spread: number | null;
+  buyOrders: OrderLevel[];
+  sellOrders: OrderLevel[];
 }
 
-const OrderBook: React.FC<OrderBookProps> = ({ symbol }) => {
-  const [buyOrders, setBuyOrders] = useState<Order[]>([]);
-  const [sellOrders, setSellOrders] = useState<Order[]>([]);
+const OrderBook: React.FC<{ symbol: string }> = ({ symbol }) => {
+  const [orderBook, setOrderBook] = useState<OrderBookData | null>(null);
 
   useEffect(() => {
-    const fetchOrders = async () => {
-      try {
-        const response = await fetch(`http://localhost:5000/api/orders/${symbol}/orders`);
-        if (response.ok) {
-          const data = await response.json();
-          setBuyOrders(data.buyOrders || []);
-          setSellOrders(data.sellOrders || []);
-        }
-      } catch (error) {
-        console.error('Error fetching orders:', error);
-      }
+    let isMounted = true;
+    // Fetch initial order book
+    fetch(`http://localhost:5000/api/orders/${symbol}/book`)
+      .then(res => {
+        if (!res.ok) throw new Error('Failed to fetch order book');
+        return res.json();
+      })
+      .then(data => { if (isMounted) setOrderBook(data); })
+      .catch(() => { if (isMounted) setOrderBook(null); });
+
+    // Subscribe to SignalR updates
+    const handleUpdate = (data: any) => {
+      if (data.Symbol === symbol) setOrderBook(data);
     };
+    signalRService.onOrderBookUpdate(handleUpdate);
+    signalRService.subscribeToSymbol(symbol);
 
-    fetchOrders();
-    const interval = setInterval(fetchOrders, 5000); // Refresh every 5 seconds
-
-    return () => clearInterval(interval);
+    return () => {
+      isMounted = false;
+      signalRService.removeOrderBookCallback(handleUpdate);
+      signalRService.unsubscribeFromSymbol(symbol);
+    };
   }, [symbol]);
+
+  if (!orderBook) return <Typography>Loading order book...</Typography>;
 
   return (
     <Box>
-      <TableContainer component={Paper} sx={{ maxHeight: 400, overflow: 'auto' }}>
-        <Table stickyHeader size="small">
-          <TableHead>
-            <TableRow>
-              <StyledTableCell>Price</StyledTableCell>
-              <StyledTableCell>Quantity</StyledTableCell>
-              <StyledTableCell>Total</StyledTableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {/* Sell Orders (in reverse order) */}
-            {[...sellOrders].reverse().map((order) => (
-              <TableRow key={order.orderId}>
-                <StyledTableCell sx={{ color: 'error.main' }}>
-                  ${order.price.toFixed(2)}
-                </StyledTableCell>
-                <StyledTableCell>{order.quantity}</StyledTableCell>
-                <StyledTableCell>
-                  ${(order.price * order.quantity).toFixed(2)}
-                </StyledTableCell>
+      <Typography variant="h6">Order Book for {symbol}</Typography>
+      <Box sx={{ display: 'flex', gap: 4 }}>
+        {/* Sell Orders (Asks) */}
+        <TableContainer component={Paper} sx={{ maxWidth: 300 }}>
+          <Table size="small">
+            <TableHead>
+              <TableRow>
+                <TableCell>Ask Price</TableCell>
+                <TableCell>Quantity</TableCell>
               </TableRow>
-            ))}
-            {/* Buy Orders */}
-            {buyOrders.map((order) => (
-              <TableRow key={order.orderId}>
-                <StyledTableCell sx={{ color: 'success.main' }}>
-                  ${order.price.toFixed(2)}
-                </StyledTableCell>
-                <StyledTableCell>{order.quantity}</StyledTableCell>
-                <StyledTableCell>
-                  ${(order.price * order.quantity).toFixed(2)}
-                </StyledTableCell>
+            </TableHead>
+            <TableBody>
+              {[...(orderBook.sellOrders || [])].reverse().map((order, idx) => (
+                <TableRow key={idx}>
+                  <TableCell>{order.price.toFixed(2)}</TableCell>
+                  <TableCell>{order.quantity}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+        {/* Buy Orders (Bids) */}
+        <TableContainer component={Paper} sx={{ maxWidth: 300 }}>
+          <Table size="small">
+            <TableHead>
+              <TableRow>
+                <TableCell>Bid Price</TableCell>
+                <TableCell>Quantity</TableCell>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+            </TableHead>
+            <TableBody>
+              {(orderBook.buyOrders || []).map((order, idx) => (
+                <TableRow key={idx}>
+                  <TableCell>{order.price.toFixed(2)}</TableCell>
+                  <TableCell>{order.quantity}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Box>
+      <Box sx={{ mt: 2 }}>
+        <Typography variant="body2">Best Bid: {orderBook.bestBid ?? 'N/A'} | Best Ask: {orderBook.bestAsk ?? 'N/A'} | Spread: {orderBook.spread ?? 'N/A'}</Typography>
+      </Box>
     </Box>
   );
 };

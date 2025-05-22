@@ -28,6 +28,7 @@ import {
   Legend
 } from 'chart.js';
 import OrderBook from './OrderBook';
+import { signalRService } from '../services/signalRService';
 
 ChartJS.register(
   CategoryScale,
@@ -78,6 +79,42 @@ const TradingInterface: React.FC = () => {
     ],
   });
 
+  const [orderBookData, setOrderBookData] = useState<any>(null);
+  const [recentTrades, setRecentTrades] = useState<any[]>([]);
+
+  useEffect(() => {
+    // Subscribe to order book updates
+    const handleOrderBookUpdate = (data: any) => {
+      console.log('Received OrderBook Update:', data);
+      setOrderBookData(data);
+    };
+
+    // Subscribe to trade updates
+    const handleTradeUpdate = (trade: any) => {
+      console.log('Received Trade Update:', trade);
+      setRecentTrades(prev => [trade, ...prev].slice(0, 10)); // Keep last 10 trades
+    };
+
+    signalRService.onOrderBookUpdate(handleOrderBookUpdate);
+    signalRService.onTradeUpdate(handleTradeUpdate);
+
+    // Subscribe to symbol when it changes
+    if (orderData.symbol) {
+      console.log('Subscribing to symbol:', orderData.symbol);
+      signalRService.subscribeToSymbol(orderData.symbol);
+    }
+
+    return () => {
+      // Cleanup subscriptions
+      signalRService.removeOrderBookCallback(handleOrderBookUpdate);
+      signalRService.removeTradeCallback(handleTradeUpdate);
+      if (orderData.symbol) {
+        console.log('Unsubscribing from symbol:', orderData.symbol);
+        signalRService.unsubscribeFromSymbol(orderData.symbol);
+      }
+    };
+  }, [orderData.symbol]);
+
   const handleOrderSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
@@ -98,6 +135,9 @@ const TradingInterface: React.FC = () => {
         console.log('Order placed successfully:', result);
         // Reset form
         setOrderData({ symbol: '', price: '', quantity: '', side: 'Buy' });
+      } else {
+        const errorData = await response.text();
+        console.error('Error response from server:', errorData);
       }
     } catch (error) {
       console.error('Error placing order:', error);
@@ -192,12 +232,35 @@ const TradingInterface: React.FC = () => {
             </Grid>
 
             {/* Order Book */}
-            <Grid item xs={12}>
+            <Grid item xs={12} md={8}>
               <GlassCard>
                 <Typography variant="h5" gutterBottom>
                   Order Book
                 </Typography>
-                <OrderBook symbol={orderData.symbol || 'AAPL'} />
+                <OrderBook 
+                  symbol={orderData.symbol || 'AAPL'} 
+                />
+              </GlassCard>
+            </Grid>
+
+            {/* Recent Trades */}
+            <Grid item xs={12} md={4}>
+              <GlassCard>
+                <Typography variant="h5" gutterBottom>
+                  Recent Trades
+                </Typography>
+                <Box sx={{ maxHeight: 400, overflow: 'auto' }}>
+                  {recentTrades.map((trade, index) => (
+                    <Box key={index} sx={{ mb: 1, p: 1, borderBottom: '1px solid', borderColor: 'divider' }}>
+                      <Typography variant="body2">
+                        {trade.quantity} @ {trade.price}
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        {new Date(trade.timestamp).toLocaleTimeString()}
+                      </Typography>
+                    </Box>
+                  ))}
+                </Box>
               </GlassCard>
             </Grid>
           </Grid>
