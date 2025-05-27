@@ -9,16 +9,25 @@ builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
     {
-        policy.WithOrigins("http://localhost:3000")
-              .AllowAnyHeader()
-              .AllowAnyMethod()
-              .AllowCredentials();  // Required for SignalR
+        policy.WithOrigins(
+                "http://localhost:3000",  // Local development
+                "https://*.vercel.app",   // Vercel preview deployments
+                "https://stock-trading-app.vercel.app",  // Vercel production
+                "https://*.netlify.app",  // Netlify preview deployments
+                "https://stock-trading-app.netlify.app"  // Netlify production
+            )
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials();  // Required for SignalR
     });
 });
 
 builder.Services.AddHttpClient<FinnhubService>(client =>
 {
     client.BaseAddress = new Uri("https://finnhub.io/");
+    client.DefaultRequestHeaders.Add("X-Finnhub-Token", 
+        Environment.GetEnvironmentVariable("FINNHUB_API_KEY") ?? 
+        builder.Configuration["FinnhubApiKey"]);
 });
 
 // Configure JSON serialization
@@ -60,6 +69,6 @@ app.MapHub<StockHub>("/hubs/stock");  // Map SignalR hub
 
 // Configure the URLs
 app.Urls.Clear();
-app.Urls.Add("http://localhost:5000");
+app.Urls.Add("http://0.0.0.0:5000");
 
 app.Run();

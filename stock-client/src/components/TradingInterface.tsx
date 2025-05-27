@@ -118,7 +118,8 @@ const TradingInterface: React.FC = () => {
   const handleOrderSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await fetch('http://localhost:5000/api/orders', {
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:5000';
+      const response = await fetch(`${backendUrl}/api/orders`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
