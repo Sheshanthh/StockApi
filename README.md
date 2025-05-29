@@ -1,36 +1,36 @@
-# Stock Trading Application
+# MERN Stack Project
 
-A real-time stock trading platform built with React, .NET, and SignalR.
+A full-stack web application built with the MERN (MongoDB, Express.js, React.js, Node.js) stack.
 
-## Features
+## Project Structure
 
-- Real-time stock price updates
-- Live order book visualization
-- Trading interface with buy/sell orders
-- Price history charts
-- SignalR integration for real-time updates
+```
+sheshanth-mern-stack/
+├── backend/         # Node.js & Express backend
+├── frontend/        # React frontend
+├── package.json     # Project dependencies
+└── .gitattributes   # Git configuration
+```
 
 ## Tech Stack
 
 ### Frontend
-- React
-- TypeScript
-- Material-UI
-- Chart.js
-- SignalR Client
+- React.js
+- JavaScript
+- CSS
+- HTML
 
 ### Backend
-- .NET 8.0
-- SignalR
+- Node.js
+- Express.js
+- MongoDB
 - RESTful API
-- Docker support
 
 ## Prerequisites
 
 - Node.js (v14 or higher)
-- .NET 8.0 SDK
-- Docker (for containerized deployment)
-- Finnhub API key
+- MongoDB
+- npm or yarn
 
 ## Getting Started
 
@@ -38,20 +38,7 @@ A real-time stock trading platform built with React, .NET, and SignalR.
 
 1. Navigate to the backend directory:
 ```bash
-cd LiveStockApi
-```
-
-2. Build and run with Docker:
-```bash
-docker build -t stockapi-backend .
-docker run -d -p 5000:5000 -e FINNHUB_API_KEY=your_finnhub_api_key --name stockapi-backend stockapi-backend
-```
-
-### Frontend Setup
-
-1. Navigate to the frontend directory:
-```bash
-cd stock-client
+cd backend
 ```
 
 2. Install dependencies:
@@ -59,9 +46,9 @@ cd stock-client
 npm install
 ```
 
-3. Create a `.env` file with:
+3. Create a `.env` file with your MongoDB connection string:
 ```
-REACT_APP_BACKEND_URL=http://localhost:5000
+MONGODB_URI=your_mongodb_connection_string
 ```
 
 4. Start the development server:
@@ -69,36 +56,51 @@ REACT_APP_BACKEND_URL=http://localhost:5000
 npm start
 ```
 
-## Deployment
+### Frontend Setup
 
-### Backend Deployment
-The backend is containerized using Docker and can be deployed to any cloud platform that supports Docker containers.
-
-### Frontend Deployment
-The frontend is deployed on Netlify:
-1. Install Netlify CLI:
+1. Navigate to the frontend directory:
 ```bash
-npm install -g netlify-cli
+cd frontend
 ```
 
-2. Deploy to Netlify:
+2. Install dependencies:
 ```bash
-netlify deploy --prod
+npm install
 ```
 
-## Environment Variables
+3. Start the development server:
+```bash
+npm start
+```
 
-### Backend
-- `FINNHUB_API_KEY`: Your Finnhub API key
+## Features
 
-### Frontend
-- `REACT_APP_BACKEND_URL`: URL of the backend API
+- Full-stack MERN application
+- RESTful API architecture
+- MongoDB database integration
+- React frontend with modern UI
+- Responsive design
+
+## Development
+
+### Backend Development
+- Express.js server
+- MongoDB database integration
+- RESTful API endpoints
+- Middleware implementation
+
+### Frontend Development
+- React components
+- State management
+- API integration
+- User interface design
 
 ## API Endpoints
 
-- `GET /api/orders`: Get all orders
-- `POST /api/orders`: Place a new order
-- `GET /hubs/stock`: SignalR hub for real-time updates
+- `GET /api/...`: Fetch data
+- `POST /api/...`: Create new data
+- `PUT /api/...`: Update existing data
+- `DELETE /api/...`: Remove data
 
 ## Contributing
 
@@ -110,4 +112,8 @@ netlify deploy --prod
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details. 
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Contact
+
+GitHub: [@Sheshanthh](https://github.com/Sheshanthh) 
